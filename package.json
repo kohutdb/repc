@@ -1,6 +1,6 @@
 {
   "name": "repc",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Simple yet powerful JSON-RPC JavaScript client.",
   "main": "src/main.js",
   "type": "module",
