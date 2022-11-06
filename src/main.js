@@ -8,7 +8,25 @@ function httpFetchTransport(url, data = {}, context = {}) {
         },
         body: JSON.stringify(data),
     })
-        .then((r) => r.json());
+        .then((r) => r.text())
+        .then((text) => {
+            text = text.trim();
+
+            if (text) {
+                return JSON.parse(text);
+            }
+
+            if (Array.isArray(data)) {
+                return [];
+            }
+
+            return {
+                jsonrpc: '2.0',
+                error: null,
+                result: undefined,
+                id: null,
+            };
+        });
 }
 
 function fillOptions(options = {}) {
@@ -34,6 +52,7 @@ function repc(url, options = {}) {
     const context = {
         url,
         call,
+        batch,
         options: repcOptions,
         lastId: 0,
     };
@@ -60,6 +79,50 @@ function repc(url, options = {}) {
             }
 
             return data.result;
+        });
+    }
+
+    function batch(calls, options) {
+        if (Array.isArray(calls)) {
+            calls = [calls];
+        }
+
+        const callOptions = { ...repcOptions, ...options };
+
+        calls = calls.map((call) => {
+            if (Array.isArray(call)) {
+                return {
+                    jsonrpc: '2.0',
+                    method: call[0],
+                    params: call[1],
+                    id: ++options.lastId,
+                };
+            }
+
+            return {
+                jsonrpc: '2.0',
+                method: call.method,
+                params: call.params,
+                id: ++options.lastId,
+            };
+        });
+
+        return callOptions.transport(
+            url,
+            calls,
+            {
+                ...context,
+                options: callOptions,
+            },
+        ).then((data) => {
+            return data.map((item) => {
+                const error = item.error;
+                if (error) {
+                    return new JsonRpcError(error);
+                }
+
+                return item.result;
+            })
         });
     }
 

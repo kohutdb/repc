@@ -51,6 +51,22 @@ const result = await math.add(2, 2);
 const result = await math.div({ a: 3.14, b: 0 }); // First parameter invalid type error
 ```
 
+Batch:
+
+```javascript
+import repc from 'repc';
+
+const math = repc('https://math.juana.dev/v1/call');
+
+const result = await math.batch([
+    ['add', [2, 2]],
+    { method: 'div', params: { a: 3.14, b: 0 } },
+]);
+
+// if error occured, it will not be thrown, but instead included in result
+// result = [4, JsonRpcError('Division by zero')]
+```
+
 ## Options
 
 ### `headers`
@@ -84,8 +100,12 @@ Data transportation function.
 
 ## Methods
 
-> Work only in normal mode.
+> Available only in normal mode.
 
 ### `call(method, params, options)`
 
 Call a method.
+
+### `batch(calls, options)`
+
+Call batch.
