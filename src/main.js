@@ -35,9 +35,10 @@ function repc(url, options = {}) {
         url,
         call,
         options: repcOptions,
+        lastId: 0,
     };
 
-    function call(method, params, options = {}) {
+    function call(method, params = {}, options = {}) {
         const callOptions = { ...repcOptions, ...options };
 
         return callOptions.transport(
@@ -46,7 +47,7 @@ function repc(url, options = {}) {
                 jsonrpc: '2.0',
                 method,
                 params,
-                id: null,
+                id: ++options.lastId,
             },
             {
                 ...context,
@@ -70,7 +71,7 @@ repc.flat = (url, options = {}) => {
 
     return new Proxy({}, {
         get(target, p, receiver) {
-            return (params, options = {}) => {
+            return (params = {}, options = {}) => {
                 return rpc.call(p, params, options);
             };
         },
