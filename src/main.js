@@ -104,7 +104,7 @@ function repc(url, options = {}) {
                 jsonrpc: '2.0',
                 method,
                 params,
-                id: callOptions.id(),
+                id: callOptions.id(method, params),
             },
             callOptions,
         ).then((response) => {
@@ -146,50 +146,40 @@ function repc(url, options = {}) {
     /**
      * Send a batch of requests.
      *
-     * @param {Array} requests
+     * @param {Function} buildFn
      * @param {Object} options
      * @returns {Promise<*[]>}
      */
-    function batch(requests, options = {}) {
+    function batch(buildFn, options = {}) {
         const batchOptions = { ...repcOptions, ...options };
 
-        if (!Array.isArray(requests)) {
-            requests = [requests];
-        }
+        const requests = [];
 
-        requests = requests.map((call) => {
-            let isNotification;
-            let method;
-            let params;
-            let id;
+        const builder = {
+            call(method, params) {
+                const id = batchOptions.id();
 
-            if (Array.isArray(call)) {
-                isNotification = call[0] === NOTIFICATION;
+                requests.push({
+                    jsonrpc: '2.0',
+                    method,
+                    params,
+                    id,
+                });
 
-                if (call[0] === CALL || call[0] === NOTIFICATION) {
-                    call = call.slice(1);
-                }
+                return builder;
+            },
+            notify(method, params) {
+                requests.push({
+                    jsonrpc: '2.0',
+                    method,
+                    params,
+                });
 
-                method = call[0];
-                params = call[1] || [];
-            } else {
-                isNotification = call.type === NOTIFICATION;
+                return builder;
+            },
+        };
 
-                method = call.method;
-                params = call.params || [];
-            }
-
-            if (!isNotification) {
-                id = batchOptions.id();
-            }
-
-            return {
-                jsonrpc: '2.0',
-                method,
-                params,
-                id,
-            };
-        });
+        buildFn(builder);
 
         return send(
             requests,

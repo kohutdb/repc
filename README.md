@@ -41,15 +41,14 @@ import repc, { NOTIFICATION } from 'repc';
 
 const math = repc('https://math.juana.dev/v1');
 
-const results = await math.batch([
-    // calls
-    ['add', [2, 2]],
-    { method: 'div', params: { a: 3.14, b: 0 } },
-
-    // notifications
-    [NOTIFICATION, 'ping'],
-    { type: NOTIFICATION, method: 'ping' },
-]);
+const responses = await math.batch(
+    (builder) => builder
+        .call('add', [2, 2])
+        .call('div', [3.14, 0])
+        .call('mul', [6, 6])
+        .call('sub', [10, 5])
+        .notify('ping')
+);
 ```
 
 ## Options
@@ -86,17 +85,17 @@ Data transportation function. Must return `Promise<string>`.
 
 ### `send(request, options)`
 
-Make a request.
+Make request.
 
 ### `call(method, params, options)`
 
-Call a method.
+Call method.
 
 ### `notify(method, params, options)`
 
 Send notification.
 
-### `batch(requests, options)`
+### `batch(builder, options)`
 
 Make several requests at the same time.
 Returns list of raw responses.
