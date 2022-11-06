@@ -37,7 +37,7 @@ await math.notify('ping');
 Batch:
 
 ```javascript
-import repc, { NOTIFICATION } from 'repc';
+import repc from 'repc';
 
 const math = repc('https://math.juana.dev/v1');
 

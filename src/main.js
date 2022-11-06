@@ -14,16 +14,6 @@ export class JsonRpcError extends Error {
 }
 
 /**
- * Call method request type.
- */
-export const CALL = Symbol('call');
-
-/**
- * Notification request type.
- */
-export const NOTIFICATION = Symbol('notification');
-
-/**
  * Fill options with default values.
  *
  * @param {Object} options
