@@ -12,13 +12,9 @@ npm i repc
 
 ```javascript
 repc(url, options)
-
-repc.flat(url, options)
-
-repc.hyperflat(url, options)
 ```
 
-Normal mode:
+Call:
 
 ```javascript
 import repc from 'repc';
@@ -26,29 +22,16 @@ import repc from 'repc';
 const math = repc('https://math.juana.dev/v1');
 
 const result = await math.call('add', [2, 2]);
-const result = await math.call('div', [3.14, 0]); // DivisonByZero error
 ```
 
-Flat mode:
+Notification:
 
 ```javascript
 import repc from 'repc';
 
-const math = repc.flat('https://math.juana.dev/v1');
+const math = repc('https://math.juana.dev/v1');
 
-const result = await math.add([2, 2]);
-const result = await math.div({ a: 3.14, b: 0 }); // DivisonByZero error
-```
-
-Hyperflat mode (not recommended):
-
-```javascript
-import repc from 'repc';
-
-const math = repc.hyperflat('https://math.juana.dev/v1');
-
-const result = await math.add(2, 2);
-const result = await math.div({ a: 3.14, b: 0 }); // First parameter invalid type error
+await math.notify('ping');
 ```
 
 Batch:
@@ -58,30 +41,37 @@ import repc, { NOTIFICATION } from 'repc';
 
 const math = repc('https://math.juana.dev/v1');
 
-const result = await math.batch([
+const results = await math.batch([
     // calls
     ['add', [2, 2]],
     { method: 'div', params: { a: 3.14, b: 0 } },
+
     // notifications
-    [NOTIFICATION, 'add', [2, 2]],
-    { type: NOTIFICATION, method: 'div', params: { a: 3.14, b: 0 } },
+    [NOTIFICATION, 'ping'],
+    { type: NOTIFICATION, method: 'ping' },
 ]);
 ```
 
 ## Options
 
+### `id`
+
+ID generation function.
+
+- type: `function(method, params)`
+
 ### `headers`
 
 Headers when using over HTTP.
 
-- type: `Object`
+- type: `object`
 - example: `{ Authorization: 'Bearer ...' }`
 
 ### `transport`
 
 Data transportation function. Must return `Promise<string>`.
 
-- type: `Function(url, data, context)`
+- type: `function(url, data, context)`
 - example:
 
 ```javascript
@@ -94,9 +84,7 @@ Data transportation function. Must return `Promise<string>`.
 
 ## Methods
 
-> Available only in normal mode.
-
-### `send(data, options)`
+### `send(request, options)`
 
 Make a request.
 
@@ -106,7 +94,7 @@ Call a method.
 
 ### `notify(method, params, options)`
 
-Call notification method.
+Send notification.
 
 ### `batch(requests, options)`
 

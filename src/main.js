@@ -1,3 +1,5 @@
+import transportOverHttp from "./transportOverHttp.js";
+
 /**
  * A JSON-RPC error.
  */
@@ -22,28 +24,16 @@ export const CALL = Symbol('call');
 export const NOTIFICATION = Symbol('notification');
 
 /**
- * Transport data over HTTP using fetch.
+ * Fill options with default values.
  *
- * @param {string} url
- * @param {Object|Array} data
- * @param {Object} context
- * @returns {Promise<string>}
+ * @param {Object} options
+ * @returns {*}
  */
-function httpFetchTransport(url, data = {}, context = {}) {
-    return fetch(url, {
-        method: 'post',
-        headers: {
-            ...context.options.headers,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    })
-        .then((r) => r.text());
-}
-
 function fillOptions(options = {}) {
-    options.transport = options.transport || httpFetchTransport;
+    let lastId = 0;
+
+    options.transport = options.transport || transportOverHttp;
+    options.id = options.id || ((method, params = []) => ++lastId);
 
     return options;
 }
@@ -68,22 +58,21 @@ function repc(url, options = {}) {
         notify,
         batch,
         options: repcOptions,
-        lastId: 0,
     };
 
     /**
      * Send a request.
      *
-     * @param {Object|Array} data
+     * @param {Object|Array} request
      * @param {Object} options
-     * @returns {*}
+     * @returns {Promise<*>}
      */
-    function send(data = {}, options = {}) {
+    function send(request = {}, options = {}) {
         const sendOptions = { ...repcOptions, ...options };
 
         return sendOptions.transport(
             url,
-            data,
+            request,
             {
                 ...context,
                 options: sendOptions,
@@ -105,9 +94,9 @@ function repc(url, options = {}) {
      * @param {string} method
      * @param {Object|Array} params
      * @param {Object} options
-     * @returns {*}
+     * @returns {Promise<*>}
      */
-    function call(method, params = {}, options = {}) {
+    function call(method, params = [], options = {}) {
         const callOptions = { ...repcOptions, ...options };
 
         return send(
@@ -115,21 +104,21 @@ function repc(url, options = {}) {
                 jsonrpc: '2.0',
                 method,
                 params,
-                id: ++context.lastId,
+                id: callOptions.id(),
             },
             callOptions,
-        ).then((data) => {
-            if (!data) {
-                return data;
+        ).then((response) => {
+            if (!response) {
+                return response;
             }
 
-            const error = data.error;
+            const error = response.error;
 
             if (error) {
                 throw new JsonRpcError(error);
             }
 
-            return data.result;
+            return response.result;
         });
     }
 
@@ -139,9 +128,9 @@ function repc(url, options = {}) {
      * @param {string} method
      * @param {Object|Array} params
      * @param {Object} options
-     * @returns {*}
+     * @returns {Promise<void>}
      */
-    function notify(method, params = {}, options = {}) {
+    function notify(method, params = [], options = {}) {
         const notifyOptions = { ...repcOptions, ...options };
 
         return send(
@@ -159,7 +148,7 @@ function repc(url, options = {}) {
      *
      * @param {Array} requests
      * @param {Object} options
-     * @returns {*|*[]}
+     * @returns {Promise<*[]>}
      */
     function batch(requests, options = {}) {
         const batchOptions = { ...repcOptions, ...options };
@@ -169,84 +158,52 @@ function repc(url, options = {}) {
         }
 
         requests = requests.map((call) => {
-            let id = ++context.lastId;
+            let isNotification;
+            let method;
+            let params;
+            let id;
 
             if (Array.isArray(call)) {
-                if (call[0] === NOTIFICATION) {
-                    id = undefined;
-                }
+                isNotification = call[0] === NOTIFICATION;
 
                 if (call[0] === CALL || call[0] === NOTIFICATION) {
                     call = call.slice(1);
                 }
 
-                return {
-                    jsonrpc: '2.0',
-                    method: call[0],
-                    params: call[1] || {},
-                    id,
-                };
+                method = call[0];
+                params = call[1] || [];
+            } else {
+                isNotification = call.type === NOTIFICATION;
+
+                method = call.method;
+                params = call.params || [];
+            }
+
+            if (!isNotification) {
+                id = batchOptions.id();
             }
 
             return {
                 jsonrpc: '2.0',
-                method: call.method,
-                params: call.params || {},
-                id: call.type === NOTIFICATION ? undefined : id,
+                method,
+                params,
+                id,
             };
         });
 
         return send(
             requests,
             batchOptions,
-        ).then((data) => {
-            if (!data) {
+        ).then((response) => {
+            if (!response) {
                 return [];
             }
 
-            return data;
+            return response;
         });
     }
 
     return context;
 }
-
-/**
- * Create repc in flat mode.
- *
- * @param {string} url
- * @param {Object} options
- * @returns {(function(*=, *=): *)|{}}
- */
-repc.flat = (url, options = {}) => {
-    const rpc = repc(url, options);
-
-    return new Proxy({}, {
-        get(target, p, receiver) {
-            return (params = {}, options = {}) => {
-                return rpc.call(p, params, options);
-            };
-        },
-    });
-};
-
-/**
- * Create repc in hyperflat mode.
- *
- * @param {string} url
- * @param {Object} options
- * @returns {(function(*=, *=): *)|{}}
- */
-repc.hyperflat = (url, options = {}) => {
-    const rpc = repc(url, options);
-
-    return new Proxy({}, {
-        get(target, p, receiver) {
-            return (...params) => {
-                return rpc.call(p, params, options);
-            };
-        },
-    });
-};
 
 export default repc;
