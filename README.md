@@ -23,7 +23,7 @@ Normal mode:
 ```javascript
 import repc from 'repc';
 
-const math = repc('https://math.juana.dev/v1/call');
+const math = repc('https://math.juana.dev/v1');
 
 const result = await math.call('add', [2, 2]);
 const result = await math.call('div', [3.14, 0]); // DivisonByZero error
@@ -34,7 +34,7 @@ Flat mode:
 ```javascript
 import repc from 'repc';
 
-const math = repc.flat('https://math.juana.dev/v1/call');
+const math = repc.flat('https://math.juana.dev/v1');
 
 const result = await math.add([2, 2]);
 const result = await math.div({ a: 3.14, b: 0 }); // DivisonByZero error
@@ -45,7 +45,7 @@ Hyperflat mode (not recommended):
 ```javascript
 import repc from 'repc';
 
-const math = repc.hyperflat('https://math.juana.dev/v1/call');
+const math = repc.hyperflat('https://math.juana.dev/v1');
 
 const result = await math.add(2, 2);
 const result = await math.div({ a: 3.14, b: 0 }); // First parameter invalid type error
@@ -56,7 +56,7 @@ Batch:
 ```javascript
 import repc, { NOTIFICATION } from 'repc';
 
-const math = repc('https://math.juana.dev/v1/call');
+const math = repc('https://math.juana.dev/v1');
 
 const result = await math.batch([
     // calls
