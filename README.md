@@ -62,9 +62,6 @@ const result = await math.batch([
     ['add', [2, 2]],
     { method: 'div', params: { a: 3.14, b: 0 } },
 ]);
-
-// if error occured, it will not be thrown, but instead included in result
-// result = [4, JsonRpcError('Division by zero')]
 ```
 
 ## Options
@@ -85,7 +82,7 @@ Fetch function.
 
 ### `transport`
 
-Data transportation function.
+Data transportation function. Must return `Promise<string>`.
 
 - type: `Function(url, data, context)`
 - example:
@@ -95,17 +92,26 @@ Data transportation function.
     fetch(url, {
         body: JSON.stringify(data),
         headers: context.options.headers,
-    }).then((r) => r.json());
+    }).then((r) => r.text());
 ```
 
 ## Methods
 
 > Available only in normal mode.
 
+### `send(data, options)`
+
+Make a request.
+
 ### `call(method, params, options)`
 
 Call a method.
 
-### `batch(calls, options)`
+### `notify(method, params, options)`
 
-Call batch.
+Call notification method.
+
+### `batch(requests, options)`
+
+Make several requests at the same time.
+Returns list of raw responses.
