@@ -12,6 +12,10 @@ npm i repc
 
 ```javascript
 repc(url, options)
+
+repc.flat(url, options)
+
+repc.hyperflat(url, options)
 ```
 
 Normal mode:
@@ -67,19 +71,14 @@ Fetch function.
 
 Data transportation function.
 
-- type: `Function(name, parameters, options, context)`
+- type: `Function(url, data, context)`
 - example:
 
 ```javascript
-(name, parameters, options, context) =>
-    fetch(context.url, {
-        data: JSON.stringify({
-            jsonrpc: "2.0",
-            method: name,
-            params: parameters,
-            id: null,
-        }),
-        headers: context.getHeaders(),
+(url, data, context) =>
+    fetch(url, {
+        body: JSON.stringify(data),
+        headers: context.options.headers,
     }).then((r) => r.json());
 ```
 
@@ -87,18 +86,6 @@ Data transportation function.
 
 > Work only in normal mode.
 
-### `setHeaders(headers)`
+### `call(method, params, options)`
 
-Replace all headers.
-
-### `setHeader(name, value)`
-
-Set value for a single header.
-
-### `getHeaders()`
-
-Get all headers.
-
-### `getHeader(name)`
-
-Get single header value.
+Call a method.
