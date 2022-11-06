@@ -54,13 +54,17 @@ const result = await math.div({ a: 3.14, b: 0 }); // First parameter invalid typ
 Batch:
 
 ```javascript
-import repc from 'repc';
+import repc, { NOTIFICATION } from 'repc';
 
 const math = repc('https://math.juana.dev/v1/call');
 
 const result = await math.batch([
+    // calls
     ['add', [2, 2]],
     { method: 'div', params: { a: 3.14, b: 0 } },
+    // notifications
+    [NOTIFICATION, 'add', [2, 2]],
+    { type: NOTIFICATION, method: 'div', params: { a: 3.14, b: 0 } },
 ]);
 ```
 
