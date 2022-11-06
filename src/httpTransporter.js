@@ -12,7 +12,7 @@ const httpTransporter = {
         return fetch(url, {
             method: 'post',
             headers: {
-                ...context.options.headers,
+                ...(context.options.headers || {}),
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
