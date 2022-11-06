@@ -77,13 +77,6 @@ Initial headers.
 - type: `Object`
 - example: `{ Authorization: 'Bearer ...' }`
 
-### `fetch`
-
-Fetch function.
-
-- type: `Function`
-- example: `window.fetch`
-
 ### `transport`
 
 Data transportation function. Must return `Promise<string>`.

@@ -30,7 +30,7 @@ export const NOTIFICATION = Symbol('notification');
  * @returns {Promise<string>}
  */
 function httpFetchTransport(url, data = {}, context = {}) {
-    return context.options.fetch(url, {
+    return fetch(url, {
         method: 'post',
         headers: {
             ...context.options.headers,
@@ -43,7 +43,6 @@ function httpFetchTransport(url, data = {}, context = {}) {
 }
 
 function fillOptions(options = {}) {
-    options.fetch = options.fetch || global.fetch;
     options.transport = options.transport || httpFetchTransport;
 
     return options;
