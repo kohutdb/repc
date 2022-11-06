@@ -80,17 +80,17 @@ const httpTransporter = {
 
 ### `send(request, options)`
 
-Make request.
+Make request. Returns response.
 
 ### `call(method, params, options)`
 
-Call method.
+Call method. Returns result.
 
 ### `notify(method, params, options)`
 
-Send notification.
+Send notification. Returns nothing.
 
 ### `batch(builder, options)`
 
 Make several requests at the same time.
-Returns list of raw responses.
+Returns array of responses.
