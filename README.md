@@ -72,7 +72,7 @@ const result = await math.batch([
 
 ### `headers`
 
-Initial headers.
+Headers when using over HTTP.
 
 - type: `Object`
 - example: `{ Authorization: 'Bearer ...' }`
