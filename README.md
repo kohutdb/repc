@@ -55,30 +55,25 @@ const responses = await math.batch(
 
 ### `id`
 
-ID generation function.
+Request ID generation function.
 
 - type: `function(method, params)`
 
-### `headers`
+### `transporter`
 
-Headers when using over HTTP.
+Data transporter. Must implement `transport` function which returns `Promise<string>`.
 
 - type: `object`
-- example: `{ Authorization: 'Bearer ...' }`
-
-### `transport`
-
-Data transportation function. Must return `Promise<string>`.
-
-- type: `function(url, data, context)`
 - example:
 
 ```javascript
-(url, data, context) =>
-    fetch(url, {
-        body: JSON.stringify(data),
-        headers: context.options.headers,
-    }).then((r) => r.text());
+const httpTransporter = {
+    transport: (url, data, context) =>
+        fetch(url, {
+            body: JSON.stringify(data),
+            headers: context.options.headers,
+        }).then((r) => r.text()),
+}
 ```
 
 ## Methods

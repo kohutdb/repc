@@ -1,4 +1,4 @@
-import transportOverHttp from "./transportOverHttp.js";
+import httpTransporter from "./httpTransporter.js";
 
 /**
  * A JSON-RPC error.
@@ -22,7 +22,7 @@ export class JsonRpcError extends Error {
 function fillOptions(options = {}) {
     let lastId = 0;
 
-    options.transport = options.transport || transportOverHttp;
+    options.transporter = options.transporter || httpTransporter;
     options.id = options.id || ((method, params = []) => ++lastId);
 
     return options;
@@ -60,7 +60,7 @@ function repc(url, options = {}) {
     function send(request = {}, options = {}) {
         const sendOptions = { ...repcOptions, ...options };
 
-        return sendOptions.transport(
+        return sendOptions.transporter.transport(
             url,
             request,
             {
