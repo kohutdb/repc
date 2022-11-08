@@ -1,6 +1,7 @@
 # repc
 
-Simple yet powerful JSON-RPC client for JavaScript and Node.js. If you need a server, try [sepc](https://github.com/kohutd/sepc).
+Simple yet powerful JSON-RPC client for JavaScript and Node.js. If you need a server,
+try [sepc](https://github.com/kohutd/sepc).
 
 ## Installation
 
@@ -31,7 +32,7 @@ import repc from 'repc';
 
 const math = repc('https://math.juana.dev/v1');
 
-await math.notify('ping');
+math.notify('ping');
 ```
 
 Batch:
