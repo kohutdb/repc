@@ -9,7 +9,10 @@ export class JsonRpcError extends Error {
 
         this.code = error.code;
         this.message = error.message;
-        this.data = error.data;
+
+        if (error.data !== undefined) {
+            this.data = error.data;
+        }
     }
 }
 
@@ -130,7 +133,17 @@ function repc(url, options = {}) {
                 params,
             },
             notifyOptions,
-        ).then(() => undefined);
+        ).then((response) => {
+            if (response) {
+                const error = response.error;
+
+                if (error) {
+                    throw new JsonRpcError(error);
+                }
+            }
+
+            return undefined;
+        });
     }
 
     /**
