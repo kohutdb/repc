@@ -146,7 +146,7 @@ function repc(url, options = {}) {
         const requests = [];
 
         const builder = {
-            call(method, params) {
+            call(method, params = []) {
                 const id = batchOptions.id();
 
                 requests.push({
@@ -158,7 +158,7 @@ function repc(url, options = {}) {
 
                 return builder;
             },
-            notify(method, params) {
+            notify(method, params = []) {
                 requests.push({
                     jsonrpc: '2.0',
                     method,
