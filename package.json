@@ -1,0 +1,26 @@
+{
+  "name": "repc",
+  "version": "1.0.12",
+  "description": "Simple yet powerful JSON-RPC client for JavaScript and Node.js.",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kohutd/repc.git"
+  },
+  "keywords": [
+    "json-rpc",
+    "rpc",
+    "jsonrpc",
+    "json"
+  ],
+  "author": "Davyd Kohut (davyd.kohut@gmail.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kohutd/repc/issues"
+  },
+  "homepage": "https://github.com/kohutd/repc#readme"
+}
